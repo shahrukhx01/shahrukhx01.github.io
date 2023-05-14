@@ -2,20 +2,20 @@
 
 ## Data, Information, and Knowledge
 
-- Data: Something that exists in any raw form without having any significance of its own.
-- Information: It is the data that has been given meaning by the means of relational connection. Information answers who, what, where, when, and how many.
-- Knowledge: Appropriate collection of information with the intent to be useful.
+- **Data:** Something that exists in any raw form without having any significance of its own.
+- **Information:** It is the data that has been given meaning by the means of relational connection. Information answers who, what, where, when, and how many.
+- **Knowledge:** Appropriate collection of information with the intent to be useful.
 
-Summary: Data -> Information (by convention), Information -> Knowledge (by cognition), Knowledge -> wisdom (by contemplation)
+**Summary:** Data -> Information (by convention), Information -> Knowledge (by cognition), Knowledge -> wisdom (by contemplation)
 
 ## How to Represent Knowledge?
 
 Five steps to represent Knowledge:
 
-1. Syntax: Common symbols and concepts
-2. Semantics: use of correct syntax
-3. Taxonomy: classification of concepts
-4. Thesuri: associations/relations of concepts
+1. **Syntax:** Common symbols and concepts
+2. **Semantics:** use of correct syntax
+3. **Taxonomy:** classification of concepts
+4. **Thesuri:** associations/relations of concepts
 5. rules and knowledge which relations are allowed and make sense. i.e., a person can't be alive and dead at the same time.
 
 ## The Art of Understanding
@@ -26,11 +26,11 @@ Five steps to represent Knowledge:
 
 #### Correct Interpretation depends on:
 
-- Syntax: set of rules, by which well formed expressions can be created from a fundamental set of symbols
-- Semantics: Interpreting the meaning of expressions
-- Context: deriving meaning of a concept wrt surrounding concepts
-- Pragmatics: Intent of sender (serious, irony/sarcasm)
-- Experience: Previous experience.
+- **Syntax:** set of rules, by which well formed expressions can be created from a fundamental set of symbols
+- **Semantics:** Interpreting the meaning of expressions
+- **Context:** deriving meaning of a concept wrt surrounding concepts
+- **Pragmatics:** Intent of sender (serious, irony/sarcasm)
+- **Experience:** Previous experience.
 
 ## Towards a Universal Knowledge Representation
 
@@ -59,11 +59,11 @@ Can be resolved via entity disambiguation.
 
 ### The Semantic Web Technology Stack
 
-1. URI - Uniform Resource Identifier
+1. **URI** - Uniform Resource Identifier
    <img src="1_5.png"/>
-2. RDF - RDF Resource Description Framework
+2. **RDF** - RDF Resource Description Framework
    <img src="1_6.png"/>
-3. RDFS - RDF Resource Description Framework Schema
+3. **RDFS** - RDF Resource Description Framework Schema
    <img src="1_7.png"/>
    <br><br>
    <img src="1_8.png"/>
