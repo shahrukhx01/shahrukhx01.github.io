@@ -1,5 +1,7 @@
-I am a graduate student at Max Planck Institute of Informatics and Saarland University. My research interests are at the intersection of Natural Language Processing, Deep Learning and Knowledge Graphs. I like to train neural networks on NLP datasets.
+# Next.js + Contentlayer
 
-#Blog
+A template with Next.js 13 app dir, Contentlayer, Tailwind CSS and dark mode.
 
-- [Knowledge Graphs](knowledge_graphs.md)
+https://next-contentlayer.vercel.app
+
+
