@@ -1,5 +1,7 @@
 <link href="styles.css" rel="stylesheet"/>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
 ---
 title: "Speculative Sampling"
@@ -133,7 +135,7 @@ def speculative_sampling(x, draft_model, target_model, N, K):
 ```
 
 The time complexity for this algorithm is $O(\frac{N}{r(K + 1)} \cdot (t_{\text{draft}}K + t_{\text{target}}))$.
-
+$$\LaTeX O(\frac{N}{r(K + 1)} \cdot (t_{\text{draft}}K + t_{\text{target}}))$$ 
 * $\frac{N}{r(K+1)}$: The number of iterations in our while loop. This works out to the number of tokens we want to decode $N$ divided by the average number of tokens that get decoded per iteration $r(K + 1)$. The paper doesn't directly report the average number of tokens that get decoded per iteration, instead they provide the acceptance rate $r$ (which is the average number of tokens decoded per iteration divided by $K + 1$)[^acceptance]. As such, we can recover the average number of tokens decoded simply by multiplying $r$ by $K + 1$.
 * $t_{\text{draft}}K + t_{\text{target}}$: The time complexity for each iteration in the loop. The $t_{\text{target}}$ term is for the single forward pass of the target model in step 2, and $t_{\text{draft}}K$ is for the $K$ forward passes of the draft model in step 1.
 
