@@ -3,11 +3,10 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
----
-title: "Speculative Sampling"
-date: 2023-02-08
-description: "A review of \"Accelerating Large Language Model Decoding with Speculative Sampling\" from Deepmind."
----
+# Speculative Sampling
+<p style="opacity: 0.5;">February 08, 2023</p>
+<hr>
+
 This post provides an overview, implementation, and time complexity analysis of DeepMind's paper [Accelerating Large Language Model Decoding with Speculative Sampling](https://arxiv.org/abs/2302.01318).
 
 Code for this blog post can be found at [github.com/jaymody/speculative-samlping](https://github.com/jaymody/speculative-sampling).
