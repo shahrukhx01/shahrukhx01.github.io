@@ -13,8 +13,6 @@ Code for this blog post can be found at [github.com/jaymody/speculative-samlping
 
 **EDIT (Apr 13th, 2023):** Updated code and time complexity to avoid the extra forward pass of the draft model (credits to [KexinFeng](https://github.com/jaymody/speculative-sampling/issues/1)).
 
-[[toc]]
-
 # Autoregressive Sampling
 The standard way of generating text from a language model is with **autoregressive sampling**, here's the algorithm as defined in the paper:
 
