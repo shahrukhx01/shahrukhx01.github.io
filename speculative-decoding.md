@@ -41,10 +41,10 @@ Where:
 * `model` is a language model (like GPT-2) that accepts as input a list of token ids of length `seq_len` and outputs a matrix of probabilities of shape `[seq_len, vocab_size]`.
 * `N` is the number of tokens we want to decode.
 
-The time complexity of this algorithm is $O(N \cdot t_{\text{model}})$:
+The time complexity of this algorithm is $$O(N \cdot t_{\text{model}})$$:
 
-* $N$: The number of iterations of our while loop, which is just the number of tokens to decode $N$.
-* $t_{\text{model}}$: The time complexity of each iteration in the loop, which is just the time taken for a single forward pass of our model $t_{\text{model}}$.
+* $$N$$: The number of iterations of our while loop, which is just the number of tokens to decode $$N$$.
+* $$t_{\text{model}}$$: The time complexity of each iteration in the loop, which is just the time taken for a single forward pass of our model $$t_{\text{model}}$$.
 
 # Speculative Sampling
 In **speculative sampling**, we have two models:
@@ -52,16 +52,16 @@ In **speculative sampling**, we have two models:
 1. A smaller, faster **draft model** (e.g. DeepMind's 7B Chinchilla model)
 2. A larger, slower **target model** (e.g. DeepMind's 70B Chinchilla model)
 
-The idea is that the draft model _speculates_ what the output is $K$ steps into the future, while the target model determines how many of those tokens we should _accept_. Here's an outline of the algorithm:
+The idea is that the draft model _speculates_ what the output is $$K$$ steps into the future, while the target model determines how many of those tokens we should _accept_. Here's an outline of the algorithm:
 
-1. The draft model decodes $K$ tokens in the regular autoregressive fashion.
+1. The draft model decodes $$K$$ tokens in the regular autoregressive fashion.
 2. We get the probability outputs of the target and draft model on the new predicted sequence.
-3. We compare the target and draft model probabilities to determine how many of the $K$ tokens we want to keep based on some **rejection criteria**. If a token is rejected, we **resample** it using a combination of the two distributions and don't accept any more tokens.
-4. If all $K$ tokens are accepted, we can sample an additional final token from the target model probability output.
+3. We compare the target and draft model probabilities to determine how many of the $$K$$ tokens we want to keep based on some **rejection criteria**. If a token is rejected, we **resample** it using a combination of the two distributions and don't accept any more tokens.
+4. If all $$K$$ tokens are accepted, we can sample an additional final token from the target model probability output.
 
-As such, instead of decoding a single token at each iteration, speculative sampling decodes between 1 to $K + 1$ tokens per iteration. If no tokens are accepted, we resample guaranteeing at least 1 token is decoded. If all $K$ tokens are accepted, then we can also sample a final token from the target models probability distribution, giving us a total of $K + 1$ tokens decoded.
+As such, instead of decoding a single token at each iteration, speculative sampling decodes between 1 to $$K + 1$$ tokens per iteration. If no tokens are accepted, we resample guaranteeing at least 1 token is decoded. If all $$K$$ tokens are accepted, then we can also sample a final token from the target models probability distribution, giving us a total of $$K + 1$$ tokens decoded.
 
-For example, consider the common idiom "The apple doesn't fall far from the tree". Given just the first part of the phrase, "The apple doesn't fall", in speculative sampling with $K=4$:
+For example, consider the common idiom "The apple doesn't fall far from the tree". Given just the first part of the phrase, "The apple doesn't fall", in speculative sampling with $$K=4$$:
 
 1. The draft model speculates the output to be "far from the tree" (4 tokens)
 2. The target model looks at those tokens, and decides to accept them all, and also sample a final token (i.e. maybe it samples a period ".").
@@ -134,10 +134,9 @@ def speculative_sampling(x, draft_model, target_model, N, K):
     return x
 ```
 
-The time complexity for this algorithm is $O(\frac{N}{r(K + 1)} \cdot (t_{\text{draft}}K + t_{\text{target}}))$.
-$$O(\frac{N}{r(K + 1)} \cdot (t_{\text{draft}}K + t_{\text{target}}))$$ 
-* $\frac{N}{r(K+1)}$: The number of iterations in our while loop. This works out to the number of tokens we want to decode $N$ divided by the average number of tokens that get decoded per iteration $r(K + 1)$. The paper doesn't directly report the average number of tokens that get decoded per iteration, instead they provide the acceptance rate $r$ (which is the average number of tokens decoded per iteration divided by $K + 1$)[^acceptance]. As such, we can recover the average number of tokens decoded simply by multiplying $r$ by $K + 1$.
-* $t_{\text{draft}}K + t_{\text{target}}$: The time complexity for each iteration in the loop. The $t_{\text{target}}$ term is for the single forward pass of the target model in step 2, and $t_{\text{draft}}K$ is for the $K$ forward passes of the draft model in step 1.
+The time complexity for this algorithm is $$O(\frac{N}{r(K + 1)} \cdot (t_{\text{draft}}K + t_{\text{target}}))$$.
+* $$\frac{N}{r(K+1)}$$: The number of iterations in our while loop. This works out to the number of tokens we want to decode $$N$$ divided by the average number of tokens that get decoded per iteration $$r(K + 1)$$. The paper doesn't directly report the average number of tokens that get decoded per iteration, instead they provide the acceptance rate $$r$$ (which is the average number of tokens decoded per iteration divided by $$K + 1$$)[^acceptance]. As such, we can recover the average number of tokens decoded simply by multiplying $$r$$ by $$K + 1$$.
+* $$t_{\text{draft}}K + t_{\text{target}}$$: The time complexity for each iteration in the loop. The $$t_{\text{target}}$$ term is for the single forward pass of the target model in step 2, and $$t_{\text{draft}}K$$ is for the $$K$$ forward passes of the draft model in step 1.
 
 # Speedup Results
 The paper reports the following speedups for their 70B Chinchilla model (using a specially trained 7B Chinchilla as the draft model):
@@ -148,21 +147,21 @@ You can see that there was no performance degradation and the decoding process i
 
 Let's compare these empirical speedup numbers to theoretical speedup numbers, which we can calculate using our time complexity equations:
 
-$$
+$$$$
 \begin{align}
 \text{speedup} & = \frac{\text{time complexity of autoregressive}}{\text{time complexity of speculative}} \\
 & = \frac{N\cdot t_{\text{target}}}{\frac{N}{r(K + 1)} \cdot (t_{\text{draft}}K + t_{\text{target}})}
 & \\
 & = \frac{r(K + 1) \cdot t_{\text{target}}}{t_{\text{draft}}K + t_{\text{target}}}
 \end{align}
-$$
+$$$$
 
 Using the values provided in the paper:
 
-* $K = 4$
-* $t_{\text{draft}} = 1.8\text{ms}$
-* $t_{\text{target}} = 14.1\text{ms}$
-* $r = 0.8$ for HumanEval and $r = 0.62$ for XSum (see figure 1 in the paper)
+* $$K = 4$$
+* $$t_{\text{draft}} = 1.8\text{ms}$$
+* $$t_{\text{target}} = 14.1\text{ms}$$
+* $$r = 0.8$$ for HumanEval and $$r = 0.62$$ for XSum (see figure 1 in the paper)
 
 For HumanEval we get a theoretical speedup of **2.65**, while the paper reports an empirical speedup of **2.46**.
 
@@ -214,4 +213,4 @@ Text = Alan Turing theorized that computers would one day become so powerful tha
 ```
 
 
-[^acceptance]: The wording from the paper for $r$ is a bit misleading. The paper states that $r$ is "the average number of tokens **accepted** divided by $K + 1$". This gives the impression they are reporting the rate at which **just** the draft tokens are accepted (i.e. don't include the resampled and final sampled tokens). In actuality, $r$ is "the average number of tokens **decoded** divided by $K + 1$" meaning we also include the resampled and final token. This would make sense since otherwise, they would have to divided $r$ by $K$ and not $K + 1$ when reporting $r$. I confirmed this with the authors of the paper.
+[^acceptance]: The wording from the paper for $$r$$ is a bit misleading. The paper states that $$r$$ is "the average number of tokens **accepted** divided by $$K + 1$$". This gives the impression they are reporting the rate at which **just** the draft tokens are accepted (i.e. don't include the resampled and final sampled tokens). In actuality, $$r$$ is "the average number of tokens **decoded** divided by $$K + 1$$" meaning we also include the resampled and final token. This would make sense since otherwise, they would have to divided $$r$$ by $$K$$ and not $$K + 1$$ when reporting $$r$$. I confirmed this with the authors of the paper.
