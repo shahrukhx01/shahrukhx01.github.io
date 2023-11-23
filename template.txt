@@ -8,5 +8,5 @@
 <hr>
 
 Example Latex: $$t_{\text{model}}$$
-
+Images: ![alt text](Isolated.png "Title")
 [^acceptance]: <Add foot notes>
