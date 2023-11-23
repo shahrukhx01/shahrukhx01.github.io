@@ -20,7 +20,7 @@ Audio Representation Acquisition``` by `Noriy et . al 2023` which entails jointl
 The key premise of the work hinges on the notion of using self-supersvised contrastive loss between the projected hidden representations from unlabelled multilingual speech and language data. The projected representations imply here, that we first pass the audio and text data through their respective encoders. Then a separate projection per modality (Feed-forward Layers) which projects the respective encoder's representation to the joint multimodal latent space. Here, the contrastive loss ensures that same text and audio pairs are pulled closer to each other and vice versa. This work is an extension to the pre-training paradigm introduced the OpenAI's CLIP paper. This can be more concretely inspected in the model's architecture below:
 
 ![alt text](/media/clara-multimodal-classifier/architecture.png "Clara Architecture")
-Subsequently, once the model has been pre-trained with the aforementioned self-supervised contrastive pre-training objective, the model can be used to perform zero-shot inference by simultaneously passing a prompt `’A person talking in a {label} voice` where $$label \in \{ \text{happy, sad, neutral, surprised} \}$$ for emotion recognition task. An example of zero-shot inference is presented below:
+Subsequently, once the model has been pre-trained with the aforementioned self-supervised contrastive pre-training objective, the model can be used to perform zero-shot inference by simultaneously passing a prompt `A person talking in a {label} voice` where $$label \in \{ \text{happy, sad, neutral, surprised} \}$$ for emotion recognition task. An example of zero-shot inference is presented below:
 
 ![alt text](/media/clara-multimodal-classifier/zeroshot.png "Clara Zeroshot Inference")
 
@@ -29,11 +29,12 @@ Now that we have walked through the high level conceptual overview of the paper,
 ## Dataset Curation
 The authors curate a multimodal data pile composed of recorded audio and text pairs encompassing over 16000 hours of natural language-like speech recordings and also 6000 hours of naturally occuring enviroment sounds. Subsequently, all the training samples are subjected to pre-processing including LAC conversion and resampling to 48kHz. Afterwards, in order to enhance diversity within the training dataset, the authors employ a range of augmentation techniques on the audio signals. These techniques encompass the addition of reverb, clipping, masking, pitch modulation, and the introduction of environmental sounds. This is done to simulate diverse acoustic environments or create distorted audio representations. Formally, the augmentations can be expressed as, given a pair of sound signals $$a_i$$ and $$a_j$$, where, $$a_i$$ is a speech signal and $$a_j$$ corresponds to environmental sound. A scaling constant $$\lambda$$ whose value ranges between  0.01 and 0.8 is used to control the contribution of $$a_j$$ (environment sound) to the $$a_i$$ (speech signal). The corresponding text labels of speech and environment sound are combined using a generative neural language model which generates a more fluent textual representation in reponse to a prompt i.e. `A person saying It’s raining outside, background wind noise`, this can be precisely expressed as follows:
 
-$$\hat{a} = \lambda a_i + (1 - \lambda) a_j$$
+$$\hat{a} = \lambda a_i + (1 - \lambda) a_j$$ <br/>
 $$\hat{t} = f(p^t + t_i + t_j)$$
 
-To enhance model's multilingual capabilities the authors
+To enhance model's multilingual capabilities the authors also additionally translate the labels of environment sounds to further languages. This is feasible since environment sounds are not based on linguistic information, hence, don't require any amendments.
 ## Method
+The Clara architecture primarily relies on a contrastive training objective which enables maximization of similarity between texts which correspond to the correct audio, otherwise, their mutual similarity in the latent space is minimized towards zero. The neural network's architecture is constituted by two encoders $$f_a$$ and $$f_t$$ that take log melspectograms and toenized texts extracted from input audio and text respectively.
 ## Implementing a Clara-based Multimodal Classifier 
 
 
