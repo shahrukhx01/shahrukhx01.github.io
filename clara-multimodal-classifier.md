@@ -11,6 +11,7 @@
 There has been a resurgence in interest towards multimodal models as the the AI research pushes toward Artificial General Intelligence (AGI). Furthermore, due to the unification of the neural architecture, more succinctly put the transformer architecture has been the workhorse behind this renaissance. Here, we will take a closer look at both the architecture and implementation of one such recent approach namely ```CLARA: Multilingual Contrastive Learning for
 Audio Representation Acquisition``` by `Noriy et . al 2023` which entails jointly training a speech and language model for usecase including zeroshot audio classification, audio-based retrieval of text and vice versa. 
 
-The key premise of the work hinges on the notion of using self-supersvie
+The key premise of the work hinges on the notion of using self-supersvised contrastive loss between the projected hidden representations from speech and language data. The projected representations imply here, that we first pass the audio and text data through their respective encoders. This can be more concretely inspected in the model's architecture below:
+[](/media/clara-multimodal-classifier/architecture.png)
 
 [^acceptance]: <Add foot notes>
