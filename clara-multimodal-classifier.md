@@ -25,7 +25,8 @@ Subsequently, once the model has been pre-trained with the aforementioned self-s
 Now that we have walked through the high level conceptual overview of the paper, the rest of blogpost is setup as follows. We'd begin by looking the dataset curation for pre-training, go over the key training details including the inner workings of the loss function, finally, we will train a multimodal classifier for emotion recognition on the [Multimodal EmotionLines Dataset (MELD)](https://www.kaggle.com/datasets/zaber666/meld-dataset/data) dataset by using a pre-trained checkpoint of the Clara model.
 
 ## Dataset Curation
-
+The authors curate a multimodal data pile composed of recorded audio and text pairs encompassing over 16000 hours of natural language-like speech recordings and also 6000 hours of naturally occuring enviroment sounds. Subsequently, all the training samples are subjected to pre-processing including LAC conversion and resampling to 48kHz. Afterwards, in order to enhance diversity within the training dataset, the authors employ a range of augmentation techniques on the audio signals. These techniques encompass the addition of reverb, clipping, masking, pitch modulation, and the introduction of environmental sounds. This is done to simulate diverse acoustic environments or create distorted audio representations. Formally, the augmentations can be expressed as, given a pair of sound signals $$a_i$$ and $$a_j$$, where, $$a_i$$ is a speech signal and $$a_j$$ corresponds to environmental sound. A scaling constant $$\lambda$$
+## Method
 ## Implementing a Clara-based Multimodal Classifier 
 
 
