@@ -9,7 +9,8 @@
 
 - [Introduction](#introduction)
 - [Dataset Curation](#dataset-curation)
-- [Method](#dataset-curation)
+- [Method](#method)
+- [Loss Function](#loss-function)
 - [Implementing a Clara-based Multimodal Classifier](#implementing-a-clara-based-multimodal-classifier)
 
 
