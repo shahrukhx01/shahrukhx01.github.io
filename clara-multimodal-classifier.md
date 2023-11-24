@@ -46,10 +46,10 @@ $$L = \frac{1}{N} \sum_{k=1}^{N} \left[ \log \frac{\exp((z_a^k \cdot z_t^k))\tau
 Now, let's break down the loss function component by component:
 
 - $$\tau_a$$ and $$\tau_t$$ are learnable temperature parameters. They predominantly control the entropy in the model's output distribution for audio and text modalities repectively.
-- $N$ corresponds to the minibatch size.
-- $z_a^k$ and $z_t^k$ correspond to the kth audio and text pair's hidden representations after the projection.
-- $\log \frac{\exp((z_a^k \cdot z_t^k))\tau_a}{\sum_{i=1}^{N} \exp((z_a^k \cdot z_t^n))\tau_a}$ depicts the contrastive optimization objective for the audio modality where for each audio datapoint in the minibatch the hidden representations are learned wrt to the audio sample based on the similarity in the latent space.
-- $\log \frac{\exp((z_t^k \cdot z_a^k))\tau_t}{\sum_{i=1}^{N} \exp((z_t^k \cdot z_a^n))\tau_t}$ represents the identical optimization phenomenon albeit for text inputs.
+- $$N$$ corresponds to the minibatch size.
+- $$z_a^k$$ and $$z_t^k$$ correspond to the kth audio and text pair's hidden representations after the projection.
+- $$\log \frac{\exp((z_a^k \cdot z_t^k))\tau_a}{\sum_{i=1}^{N} \exp((z_a^k \cdot z_t^n))\tau_a}$$ depicts the contrastive optimization objective for the audio modality where for each audio datapoint in the minibatch the hidden representations are learned wrt to the audio sample based on the similarity in the latent space.
+- $$\log \frac{\exp((z_t^k \cdot z_a^k))\tau_t}{\sum_{i=1}^{N} \exp((z_t^k \cdot z_a^n))\tau_t}$$ represents the identical optimization phenomenon albeit for text inputs.
 
 ## Implementing a Clara-based Multimodal Classifier 
 
