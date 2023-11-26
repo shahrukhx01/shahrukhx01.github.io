@@ -34,8 +34,8 @@ Now that we have walked through the high level conceptual overview of the paper,
 
 The authors curate a multimodal data pile composed of recorded audio and text pairs encompassing over 16000 hours of natural language-like speech recordings and also 6000 hours of naturally occuring enviroment sounds. Subsequently, all the training samples are subjected to pre-processing including LAC conversion and resampling to 48kHz. Afterwards, in order to enhance diversity within the training dataset, the authors employ a range of augmentation techniques on the audio signals. These techniques encompass the addition of reverb, clipping, masking, pitch modulation, and the introduction of environmental sounds. This is done to simulate diverse acoustic environments or create distorted audio representations. Formally, the augmentations can be expressed as, given a pair of sound signals $$a_i$$ and $$a_j$$, where, $$a_i$$ is a speech signal and $$a_j$$ corresponds to environmental sound. A scaling constant $$\lambda$$ whose value ranges between 0.01 and 0.8 is used to control the contribution of $$a_j$$ (environment sound) to the $$a_i$$ (speech signal). The corresponding text labels of speech and environment sound are combined using a generative neural language model which generates a more fluent textual representation in reponse to a prompt i.e. `A person saying It’s raining outside, background wind noise`, this can be precisely expressed as follows:
 
-$$\hat{a} = \lambda a_i + (1 - \lambda) a_j$$ <br/>
-$$\hat{t} = f(p^t + t_i + t_j)$$
+<p style="text-align: center;">$$\hat{a} = \lambda a_i + (1 - \lambda) a_j$$</p>
+<p style="text-align: center;">$$\hat{t} = f(p^t + t_i + t_j)$$</p>
 
 To enhance model's multilingual capabilities the authors also additionally translate the labels of environment sounds to further languages. This is feasible since environment sounds are not based on linguistic information, hence, don't require any amendments.
 
