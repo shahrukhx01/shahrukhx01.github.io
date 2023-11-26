@@ -351,7 +351,7 @@ It is interesting to observe that both the training and validation losses were c
 Furthermore, we also have a plot showing evolution of validation accuracy over the 20 epochs, as the validation accuracy never stagnated during training, hence, early stopping did not stop training in the middle.
 ![alt text](/media/clara-multimodal-classifier/val_accuracy.png "Validation Accuracy")
 
-Lastly, on the test set we get an accuracy score of $$~49\%$$, it is important to note that the state of the art model on MELD dataset achieves $$~69\%$$. Hence, it is impressive to get a reasonable accuracy score only after fine-tuning (classifier layers only) for 20 epochs.
+Lastly, on the test set we get an accuracy score of $$~49\%$$, it is important to note that the state of the art model on [MELD dataset benchmark](https://paperswithcode.com/sota/emotion-recognition-in-conversation-on-meld) achieves $$~69\%$$. Hence, it is impressive to get a reasonable accuracy score only after fine-tuning (classifier layers only) for 20 epochs.
 
 ## Summary and Next Steps
 
