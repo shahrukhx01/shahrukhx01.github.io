@@ -355,6 +355,6 @@ Lastly, on the test set we get an accuracy score of $$~49\%$$, it is important t
 
 ## Summary and Next Steps
 
-In conclusion, we have discussed one of the recent appraoch for pre-training a multimodal (speech and language) model named CLARA. Furthermore, we applied the pre-trained medium checkpoint to MELD dataset by fine-tuning the model. The fine-tuning process involved adding few fully connected layers next to the projection head of the model.
+In conclusion, we have discussed one of the recent appraoch for pre-training a multimodal (speech and language) model named CLARA. Furthermore, we applied the pre-trained medium checkpoint to MELD dataset by fine-tuning the model. The fine-tuning process involved adding few fully connected layers next to the projection head of the model. **The full training code for accompanying this blogpost can be found [here](https://github.com/shahrukhx01/clara-multimodal-classifier/tree/main).**
 
 As concrete next steps, the performance of the above classifier can be even further improved by hyperparameter tuning and/or unfreezing both the decoders, as currently we do not update the encoder parameters during fine-tuning. Lastly, if you have multiple similar classification tasks at hand, multi-task fine-tuning can also potentially add a performance boost to the downstream classifier and is more data-efficient in terms of training samples.
