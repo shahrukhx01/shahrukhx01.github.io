@@ -3,12 +3,20 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
-# LLM Tokenizers: Understanding Text Tokenizers for Transformer-based Language Models
+# LLM Tokenizations: Understanding Text Tokenizations for Transformer-based Language Models
 
 <p style="opacity: 0.5;">25 December, 2023</p>
 <hr>
 
 - [Introduction](#introduction)
+- [Word Tokenization](#word-tokenization)
+- [Character-level Tokenization](#character-level-tokenization)
+- [Subword Tokenization](#word-level-tokenization)
+    - [Byte-Pair Tokenization](#byte-pair-tokenization)
+    - [WordPiece Tokenization](#wordpiece-tokenization)
+    - [Unigram Tokenization](#unigram-tokenization)
+    - [SentencePiece Tokenization](#sentencepiece-tokenization)
+- [Summary](#summary)
 
 ## Introduction
 
@@ -16,3 +24,11 @@ As it is established practice that Computers represent the data digitally in the
 
 
 In this post, we will expolore various tokenization mechanisms. Including the ones used by the main stream LLMs including LLAMA, GPT, BERT etc. Alongside the simulated tokenization dry runs, we will also go over the implementation of the such tokenization algorithms alongside.
+
+## Word Tokenization
+## Character-level Tokenization
+## Subword Tokenization
+### Byte-Pair Tokenization
+### WordPiece Toekenization
+### Unigram Tokenization
+### SentencePiece Tokenization
