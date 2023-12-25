@@ -1,0 +1,6 @@
+{
+    "vim.normalModeKeyBindings": [
+      // Make "9j 9k" work faster
+      { "before": ["Down"], "after": ["j"] },
+      { "before": ["Up"], "after": ["k"] }]
+}
