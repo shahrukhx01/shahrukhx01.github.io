@@ -28,7 +28,7 @@ In this post, we will expolore various tokenization mechanisms. Including the on
 ![alt text](/media/language-model-tokenizers/tokenizers-tree.png "Tokenizers Tree")
 
 <blockquote class="blockstyle">
- <span class="triangle">💡</span> It is pertinent to note that tokenization process directly influences the items in a vocabulary (formally called <em>word types</em>)of a language model alongside the size of the vocabulary. Furthermore, you may also prune the vocabulary to discard the infrequent <em>word types</em> post-tokenization to reduce the size of the embedding matrix (which contains trainable weights). Since, each word type from the vocabulary will correspond to counterpart word embedding latent vectors.
+ <span class="triangle">💡</span> It is pertinent to note that tokenization process directly influences the items in a vocabulary (formally called <em>word types</em>)of a language model alongside the size of the vocabulary. Additionally, each word type from the vocabulary corresponds to its counterpart word embedding latent vectors in the embedding matrix. Concretely, the size of vocabulary is directly proportional to number of embedding vectors in the embedding matrix of a language model. Thereby, you may also prune the vocabulary to discard the infrequent <em>word types</em> post-tokenization to reduce the size of the embedding matrix (which contains trainable weights). 
 </blockquote>
 
 ## Word Tokenization
