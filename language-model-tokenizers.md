@@ -9,6 +9,7 @@
 <hr>
 
 - [Introduction](#introduction)
+- [Normalization and pre-tokenization](#normalization-and-pre-tokenization)
 - [Word Tokenization](#word-tokenization)
 - [Character-level Tokenization](#character-level-tokenization)
 - [Subword Tokenization](#word-level-tokenization)
@@ -31,6 +32,63 @@ In this post, we will expolore various tokenization mechanisms. Including the on
  <span class="triangle">💡</span> It is pertinent to note that tokenization process directly influences the items in a vocabulary (formally called <em>word types</em>)of a language model alongside the size of the vocabulary. Additionally, each word type from the vocabulary corresponds to its counterpart word embedding latent vectors in the embedding matrix. Concretely, the size of vocabulary is directly proportional to number of embedding vectors in the embedding matrix of a language model. Thereby, you may also prune the vocabulary to discard the infrequent <em>word types</em> post-tokenization to reduce the size of the embedding matrix (which contains trainable weights). 
 </blockquote>
 
+# Tokenization Pipelines in Practice
+Before we delve into aforementioned tokenization mechanism. It is important to highlight that tokenizers in practice are not used stand-alone on raw input. Rather specialized pre-processing and post-processing steps are performed to standardize tokenization results. This becomes even more critical when processing multi-lingual corpora.
+
+![alt text](/media/language-model-tokenizers/tokenization_pipeline.svg "Tokenization Pipeline")
+<em>source: https://huggingface.co/learn/nlp-course/chapter6/4</em>
+
+## Normalization
+
+The normalization process includes basic tidying tasks like eliminating unnecessary spaces, converting to lowercase, and/or eliminating accents. If you're acquainted with Unicode normalization (like NFC or NFKC), the tokenizer might also implement this step. Below is a simple example of a normalizer from Huggingface tokenizers.
+
+```python
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+bert_normalizer = tokenizer.backend_tokenizer.normalizer
+print(bert_normalizer.normalize_str("Héllò hôw are ü?"))
+```
+<em>Output:</em>
+```bash
+'hello how are u?'
+```
+
+## Pre-tokenization
+
+Training a tokenizer solely on raw text is not feasible. To address this, we use pre-tokenization to initially divide the text into smaller entities, such as words. As discussed [later](#word-tokenization), a word-based tokenizer can simply split a raw text into words on whitespace and punctuation. The resulting words become the boundaries of the subtokens the tokenizer can learn during its training.
+
+### Pre-tokenization: BERT vs GPT vs T5
+Below is a simple comparison taken from [Huggingface NLP course](https://huggingface.co/learn/nlp-course/chapter6/4?fw=pt#pre-tokenization).
+
+```python
+from transformers import AutoTokenizer
+
+# BERT pre_tokenize
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str("Hello, how are  you?")
+
+# Output:
+[('Hello', (0, 5)), (',', (5, 6)), ('how', (7, 10)), ('are', (11, 14)), ('you', (16, 19)), ('?', (19, 20))]
+
+
+# GPT pre_tokenize
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str("Hello, how are  you?")
+
+# Output:
+[('Hello', (0, 5)), (',', (5, 6)), ('Ġhow', (6, 10)), ('Ġare', (10, 14)), ('Ġ', (14, 15)), ('Ġyou', (15, 19)),
+ ('?', (19, 20))]
+
+ # T5 pre_tokenize
+ tokenizer = AutoTokenizer.from_pretrained("t5-small")
+tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str("Hello, how are  you?")
+
+# Output:
+[('▁Hello,', (0, 6)), ('▁how', (7, 10)), ('▁are', (11, 14)), ('▁you?', (16, 20))]
+```
+#### Key Highlights:
+- 
 ## Word Tokenization
 The most trivial form of tokenization is based on the splitting the text by space. For instance, you have the text `Don't you love 🤗 Transformers? We sure do.`. The word-level space-based tokenizer will split it into tokens `["Don't", "you", "love", "🤗", "Transformers?", "We", "sure", "do."]`. If you notice closely, the space-based tokenizer does not split compound words such as `Don't`, however, `Don't` corresponds to `do not`. Hence, in practice NLP libraries like [spacy](https://spacy.io/) and [Moses](https://www2.statmt.org/moses/?n=Development.GetStarted) implement word-level tokenizers as a combination of rule and space-based approaches. Thereby, these rule-based tokenizers will produce the following tokens for the same input text `["Do", "n't", "you", "love", "🤗", "Transformers", "?", "We", "sure", "do", "."]`.
 
