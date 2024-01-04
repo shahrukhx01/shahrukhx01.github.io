@@ -32,6 +32,11 @@ In this post, we will expolore various tokenization mechanisms. Including the on
 </blockquote>
 
 ## Word Tokenization
+The most trivial form of tokenization is based on the splitting the text by space. For instance, you have the text `Don't you love 🤗 Transformers? We sure do.`. The word-level space-based tokenizer will split it into tokens `["Don't", "you", "love", "🤗", "Transformers?", "We", "sure", "do."]`. If you notice closely, the space-based tokenizer does not split compound words such as `Don't`, however, `Don't` corresponds to `do not`. Hence, in practice NLP libraries like [spacy](https://spacy.io/) and [Moses](https://www2.statmt.org/moses/?n=Development.GetStarted) implement word-level tokenizers as a combination of rule and space-based approaches. Thereby, these rule-based tokenizers will produce the following tokens for the same input text `["Do", "n't", "you", "love", "🤗", "Transformers", "?", "We", "sure", "do", "."]`.
+
+Despite, the fact these tokenizers do a reasonable job at segregating such compound words. In general, word-level tokenizers result in large vocabularies given a large copora. For instance, [Transformer XL](https://huggingface.co/docs/transformers/model_doc/transfo-xl) uses space and punctuation tokenization and has a vocabulary size of 267,735! Consequently, as described above this results in a huge embedding matrix increasing the complexity and compute requirements for pre-training a language model. A rule of thumb for a monolingual transformer-based language model should have a vocabulary size approximately around 50,000.
+
+Another downside of the word-level tokenizer is its inability to handle out-of-vocabulary words at test time. This means we don’t have a word embedding for that word and thus cannot process the input sequence. A typical solution entails, that all such occurrences of words are typically mapped to a special `<UNK>` token. Such mapping can potentially result in loss of useful information when processing a text sequence by the language model. Similarly, Word-level tokenization treats different forms of the same word (e.g., “open”, “opened”, “opens”, “opening”, etc) as separate types thus, resulting in separate embeddings for each.
 ## Character-level Tokenization
 ## Subword Tokenization
 ### Byte-Pair Tokenization
