@@ -90,9 +90,9 @@ tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str("Hello, how are  you?
 #### Key Highlights:
 | Tokenizer| Splitting Mechanism| Whitespace inclusion |
 | ----------- | ----------- | ----------- |
-|BERT| Whitespace and punctuation | Ignores       |
-|GPT| Whitespace and punctuation | Replaces with Ġ|
-|T5| Whitespace only | Replaces with `_` & also appends `_` at beginning|
+| BERT | Whitespace and punctuation | Ignores       |
+| GPT | Whitespace and punctuation | Replaces with Ġ|
+| T5 | Whitespace only | Replaces with `_` & also appends `_` at beginning|
 
 ## Word Tokenization
 The most trivial form of tokenization is based on the splitting the text by space. For instance, you have the text `Don't you love 🤗 Transformers? We sure do.`. The word-level space-based tokenizer will split it into tokens `["Don't", "you", "love", "🤗", "Transformers?", "We", "sure", "do."]`. If you notice closely, the space-based tokenizer does not split compound words such as `Don't`, however, `Don't` corresponds to `do not`. Hence, in practice NLP libraries like [spacy](https://spacy.io/) and [Moses](https://www2.statmt.org/moses/?n=Development.GetStarted) implement word-level tokenizers as a combination of rule and space-based approaches. Thereby, these rule-based tokenizers will produce the following tokens for the same input text `["Do", "n't", "you", "love", "🤗", "Transformers", "?", "We", "sure", "do", "."]`.
