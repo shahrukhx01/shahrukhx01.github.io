@@ -9,7 +9,7 @@
 <hr>
 
 - [Introduction](#introduction)
-- [Normalization and pre-tokenization](#normalization-and-pre-tokenization)
+- [Tokenization Pipelines in Practice](#tokenization-pipelines-in-practice)
 - [Word Tokenization](#word-tokenization)
 - [Character-level Tokenization](#character-level-tokenization)
 - [Subword Tokenization](#word-level-tokenization)
@@ -88,13 +88,60 @@ tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str("Hello, how are  you?
 [('▁Hello,', (0, 6)), ('▁how', (7, 10)), ('▁are', (11, 14)), ('▁you?', (16, 20))]
 ```
 #### Key Highlights:
-- 
+| Tokenizer| Splitting Mechanism| Whitespace inclusion |
+| ----------- | ----------- | ----------- |
+|BERT| Whitespace and punctuation | Ignores       |
+|GPT| Whitespace and punctuation | Replaces with Ġ|
+|T5| Whitespace only | Replaces with `_` & also appends `_` at beginning|
+
 ## Word Tokenization
 The most trivial form of tokenization is based on the splitting the text by space. For instance, you have the text `Don't you love 🤗 Transformers? We sure do.`. The word-level space-based tokenizer will split it into tokens `["Don't", "you", "love", "🤗", "Transformers?", "We", "sure", "do."]`. If you notice closely, the space-based tokenizer does not split compound words such as `Don't`, however, `Don't` corresponds to `do not`. Hence, in practice NLP libraries like [spacy](https://spacy.io/) and [Moses](https://www2.statmt.org/moses/?n=Development.GetStarted) implement word-level tokenizers as a combination of rule and space-based approaches. Thereby, these rule-based tokenizers will produce the following tokens for the same input text `["Do", "n't", "you", "love", "🤗", "Transformers", "?", "We", "sure", "do", "."]`.
 
 Despite, the fact these tokenizers do a reasonable job at segregating such compound words. In general, word-level tokenizers result in large vocabularies given a large copora. For instance, [Transformer XL](https://huggingface.co/docs/transformers/model_doc/transfo-xl) uses space and punctuation tokenization and has a vocabulary size of 267,735! Consequently, as described above this results in a huge embedding matrix increasing the complexity and compute requirements for pre-training a language model. A rule of thumb for a monolingual transformer-based language model should have a vocabulary size approximately around 50,000.
 
 Another downside of the word-level tokenizer is its inability to handle out-of-vocabulary words at test time. This means we don’t have a word embedding for that word and thus cannot process the input sequence. A typical solution entails, that all such occurrences of words are typically mapped to a special `<UNK>` token. Such mapping can potentially result in loss of useful information when processing a text sequence by the language model. Similarly, Word-level tokenization treats different forms of the same word (e.g., “open”, “opened”, “opens”, “opening”, etc) as separate types thus, resulting in separate embeddings for each.
+
+ We will use the following copus for all the tokenizer implementations:
+```python
+corpus = [
+    "The sleek black cat gracefully leaps over the sleeping dog.",
+    "A nimble gray squirrel effortlessly vaults across the backyard fence.",
+    "In the quiet forest, a small rabbit dashes past the resting hare.",
+    "With a swift motion, the agile kangaroo hops over the dozing koala.",
+    "A fast and agile cheetah sprints across the savannah, leaving dust in its wake."
+]
+```
+### Whitespace Word-level tokenizer implementation
+```python
+def whitespace_word_level_tokenizer(sequence: str) -> list[str]:
+    return sequence.split() 
+
+result = list(map(whitespace_word_level_tokenizer, corpus))
+print(result)
+```
+<em>Output:</em>
+```python
+[['The',  'sleek',  'black',  'cat',  'gracefully',  'leaps',  'over',  'the',  'sleeping',  'dog.'], ['A',  'nimble',  'gray',  'squirrel',  'effortlessly',  'vaults',  'across',  'the',  'backyard',  'fence.'], ['In',  'the',  'quiet',  'forest,',  'a',  'small',  'rabbit',  'dashes',  'past',  'the',  'resting',  'hare.'], ['With',  'a',  'swift',  'motion,',  'the',  'agile',  'kangaroo',  'hops',  'over',  'the',  'dozing',  'koala.'], ['A',  'fast',  'and',  'agile',  'cheetah',  'sprints',  'across',  'the',  'savannah,',  'leaving',  'dust',  'in',  'its',  'wake.']]
+```
+
+### Rule-based Word-level tokenizer implementation
+```python
+
+import re 
+def rule_based_word_level_tokenizer(sequence: str) -> list[str]:
+    """The rules include to replace any special characters other than alphanumeric with a whitespace. Then only extract whitespace separated words."""
+    preprocessed_sequence = re.sub(r'\W+', ' ', sequence) 
+    return re.findall(r'\b\w+\b|[^\w\s]', preprocessed_sequence) 
+
+result = list(map(rule_based_word_level_tokenizer, corpus))
+print(result)
+```
+<em>Output:</em>
+```python
+[['The', 'sleek', 'black', 'cat', 'gracefully', 'leaps', 'over', 'the', 'sleeping', 'dog'], ['A', 'nimble', 'gray', 'squirrel', 'effortlessly', 'vaults', 'across', 'the', 'backyard', 'fence'], ['In', 'the', 'quiet', 'forest', 'a', 'small', 'rabbit', 'dashes', 'past', 'the', 'resting', 'hare'], ['With', 'a', 'swift', 'motion', 'the', 'agile', 'kangaroo', 'hops', 'over', 'the', 'dozing', 'koala'], ['A', 'fast', 'and', 'agile', 'cheetah', 'sprints', 'across', 'the', 'savannah', 'leaving', 'dust', 'in', 'its', 'wake']]
+```
+
+Above were some toy examples of world-level tokenizers. Additional steps include creating a vocabulary consisting of set of tokens post-tokenization. Thereafter, language models learn a unique embedding per vocabulary item encampasulating the semantic meaning of the token. However, as discussed above word-level tokenization has inherent limitations including large resulting vocabularies, inability to deal with out-of-vocabulary tokens at test time etc.
 ## Character-level Tokenization
 ## Subword Tokenization
 ### Byte-Pair Tokenization
