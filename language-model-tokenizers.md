@@ -28,7 +28,7 @@ In this post, we will expolore various tokenization mechanisms. Including the on
 
 ![alt text](/media/language-model-tokenizers/tokenizers-tree.png "Tokenizers Tree")
 
-<blockquote class="blockstyle">
+<blockquote class="blockstyle" style="color:#00CC8F;">
  <span class="triangle">💡</span> It is pertinent to note that tokenization process directly influences the items in a vocabulary (formally called <em>word types</em>)of a language model alongside the size of the vocabulary. Additionally, each word type from the vocabulary corresponds to its counterpart word embedding latent vectors in the embedding matrix. Concretely, the size of vocabulary is directly proportional to number of embedding vectors in the embedding matrix of a language model. Thereby, you may also prune the vocabulary to discard the infrequent <em>word types</em> post-tokenization to reduce the size of the embedding matrix (which contains trainable weights). 
 </blockquote>
 
@@ -183,7 +183,7 @@ print(result)
 ## Subword Tokenization
 To get the best of both worlds, transformer-based language models leverage subword tokenization technique which combines both character-level and word-level tokenization mechanisms. Interestingly, the original idea was developed for machine translation by Sennrich et al., ACL 2016. 
 
-<blockquote class="blockstyle">
+<blockquote class="blockstyle" style="color:#00CC8F;">
  <span class="triangle">💡</span> "The main motivation behind this paper is that the translation of some words is transparent in that they are translatable by a competent 
 translator even if they are novel to him or her, based on a translation of known subword units such as morphemes or phonemes."
 </blockquote>
@@ -193,8 +193,6 @@ The key principle of subword tokenization entails applying word-level tokenizati
 Concretely, the subword toeknization has multiple implementation flavors. Below we will go over the most commonplace flavors used by some of the mainstream language models.
 
 ### Byte-Pair (BPE) Tokenization
-BPE training starts by computing the unique set of words used in the corpus (after the normalization and pre-tokenization steps are completed), then building the vocabulary by taking all the symbols used to write those words. The base vocabulary will then be ["b", "g", "h", "n", "p", "s", "u"]. For real-world cases, that base vocabulary will contain all the ASCII characters, at the very least, and probably some Unicode characters as well. If an example you are tokenizing uses a character that is not in the training corpus, that character will be converted to the unknown token. That’s one reason why lots of NLP models are very bad at analyzing content with emojis, for instance.
-
 BPE tokenization involves a training step at the beginning. Unlike the machine learning model the training process entails computing statistical measures to construct a meaningful and robust vocabulary whilst also applying pre-processing (normalization and pre-tokenization) and post-processing steps. For instance, for the toy corpus below the base vocabulary will consist of {"b", "g", "h", "n", "p", "s", "u"}. 
 
 ```python
@@ -205,7 +203,7 @@ For real-world cases, the base vocabulary will include all Unicode characters at
 
 
 
-<blockquote class="blockstyle">
+<blockquote class="blockstyle" style="color:#00CC8F;">
  <span class="triangle">💡</span> The GPT-2 and Roberta tokenizers directly use byte-level representations of all characters as the base vocbulary with size 256. Thereby, this initial trick encompasses all possible character and allows to avoid out-of-vocabulary situation. This trick is called byte-level BPE.
 </blockquote>
 
