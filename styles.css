@@ -80,6 +80,7 @@ blockquote {
     position: relative;
     transition: 0.2s border ease-in-out;
     z-index: 0;
+    color: #00CC8F;
   }
   blockquote:before {
     content: "";
