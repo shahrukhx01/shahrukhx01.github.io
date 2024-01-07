@@ -161,8 +161,81 @@ print(result)
 
 Above were some toy examples of world-level tokenizers. Additional steps include creating a vocabulary consisting of set of tokens post-tokenization. Thereafter, language models learn a unique embedding per vocabulary item encampasulating the semantic meaning of the token. However, as discussed above word-level tokenization has inherent limitations including large resulting vocabularies, inability to deal with out-of-vocabulary tokens at test time etc.
 ## Character-level Tokenization
+
+Character-level tokenization alleviates the out-of-vocabulary problem of the word-level tokenization. It solves this by building the vocabulary based on all possible single characters possible for a given natural language. Hence, you can always form any word by putting together individual characters from the vocabulary even when you have misspellings in the input text. Additionally, the vocabulary size becomes much more smaller, for instance, for English language you can potentially have 170,000 unique words. Whereby, to represent the same words you would only require 256 characters. Hence, drastically reducing vocabulary size and computational complexity.
+
+While character-based tokenization provides an elegant solution for gracefully handling out-of-vocabulary terms. Character-based tokenization present its own set of challenges such as characters don't hold more contextual information than individual words. The resulting tokenized sequences are much longer than word-level tokenization due to the fact that each character in your input is a distinct token. Resultantly, the language model is required to deal with longer input contexts. Furthermore, to learn semantic representations at word-level you need to explicitly pool information for each word within the language model. Let's have quick look at a naive character-level tokenizer implementation below.
+
+### Character-level tokenizer implementation
+```python
+
+def character_level_tokenizer(sequence: str) -> list[str]:
+  return list(sequence)
+
+result = list(map(character_level_tokenizer, corpus))
+print(result)
+```
+<em>Output:</em>
+```python
+[['T', 'h', 'e', ' ', 's', 'l', 'e', 'e', 'k', ' ', 'b', 'l', 'a', 'c', 'k', ' ', 'c', 'a', 't', ' ', 'g', 'r', 'a', 'c', 'e', 'f', 'u', 'l', 'l', 'y', ' ', 'l', 'e', 'a', 'p', 's', ' ', 'o', 'v', 'e', 'r', ' ', 't', 'h', 'e', ' ', 's', 'l', 'e', 'e', 'p', 'i', 'n', 'g', ' ', 'd', 'o', 'g', '.'], ['A', ' ', 'n', 'i', 'm', 'b', 'l', 'e', ' ', 'g', 'r', 'a', 'y', ' ', 's', 'q', 'u', 'i', 'r', 'r', 'e', 'l', ' ', 'e', 'f', 'f', 'o', 'r', 't', 'l', 'e', 's', 's', 'l', 'y', ' ', 'v', 'a', 'u', 'l', 't', 's', ' ', 'a', 'c', 'r', 'o', 's', 's', ' ', 't', 'h', 'e', ' ', 'b', 'a', 'c', 'k', 'y', 'a', 'r', 'd', ' ', 'f', 'e', 'n', 'c', 'e', '.'], ['I', 'n', ' ', 't', 'h', 'e', ' ', 'q', 'u', 'i', 'e', 't', ' ', 'f', 'o', 'r', 'e', 's', 't', ',', ' ', 'a', ' ', 's', 'm', 'a', 'l', 'l', ' ', 'r', 'a', 'b', 'b', 'i', 't', ' ', 'd', 'a', 's', 'h', 'e', 's', ' ', 'p', 'a', 's', 't', ' ', 't', 'h', 'e', ' ', 'r', 'e', 's', 't', 'i', 'n', 'g', ' ', 'h', 'a', 'r', 'e', '.'], ['W', 'i', 't', 'h', ' ', 'a', ' ', 's', 'w', 'i', 'f', 't', ' ', 'm', 'o', 't', 'i', 'o', 'n', ',', ' ', 't', 'h', 'e', ' ', 'a', 'g', 'i', 'l', 'e', ' ', 'k', 'a', 'n', 'g', 'a', 'r', 'o', 'o', ' ', 'h', 'o', 'p', 's', ' ', 'o', 'v', 'e', 'r', ' ', 't', 'h', 'e', ' ', 'd', 'o', 'z', 'i', 'n', 'g', ' ', 'k', 'o', 'a', 'l', 'a', '.'], ['A', ' ', 'f', 'a', 's', 't', ' ', 'a', 'n', 'd', ' ', 'a', 'g', 'i', 'l', 'e', ' ', 'c', 'h', 'e', 'e', 't', 'a', 'h', ' ', 's', 'p', 'r', 'i', 'n', 't', 's', ' ', 'a', 'c', 'r', 'o', 's', 's', ' ', 't', 'h', 'e', ' ', 's', 'a', 'v', 'a', 'n', 'n', 'a', 'h', ',', ' ', 'l', 'e', 'a', 'v', 'i', 'n', 'g', ' ', 'd', 'u', 's', 't', ' ', 'i', 'n', ' ', 'i', 't', 's', ' ', 'w', 'a', 'k', 'e', '.']]
+```
+
 ## Subword Tokenization
-### Byte-Pair Tokenization
+To get the best of both worlds, transformer-based language models leverage subword tokenization technique which combines both character-level and word-level tokenization mechanisms. Interestingly, the original idea was developed for machine translation by Sennrich et al., ACL 2016. 
+
+<blockquote class="blockstyle">
+ <span class="triangle">💡</span> "The main motivation behind this paper is that the translation of some words is transparent in that they are translatable by a competent 
+translator even if they are novel to him or her, based on a translation of known subword units such as morphemes or phonemes."
+</blockquote>
+
+The key principle of subword tokenization entails applying word-level tokenization to more frequent terms. Whereby, the rather rare terms are decomposed into smaller frequent terms. For instance, the word `annoyingly` can potentially be decomposed into two words `annoying` and `ly`. Hence, this keeps in check the input tokenized sequence length (not decomposing frequent terms), whilst also providing means to handle out-of-vocbulary terms (decomposition of rare terms).
+
+Concretely, the subword toeknization has multiple implementation flavors. Below we will go over the most commonplace flavors used by some of the mainstream language models.
+
+### Byte-Pair (BPE) Tokenization
+BPE training starts by computing the unique set of words used in the corpus (after the normalization and pre-tokenization steps are completed), then building the vocabulary by taking all the symbols used to write those words. The base vocabulary will then be ["b", "g", "h", "n", "p", "s", "u"]. For real-world cases, that base vocabulary will contain all the ASCII characters, at the very least, and probably some Unicode characters as well. If an example you are tokenizing uses a character that is not in the training corpus, that character will be converted to the unknown token. That’s one reason why lots of NLP models are very bad at analyzing content with emojis, for instance.
+
+BPE tokenization involves a training step at the beginning. Unlike the machine learning model the training process entails computing statistical measures to construct a meaningful and robust vocabulary whilst also applying pre-processing (normalization and pre-tokenization) and post-processing steps. For instance, for the toy corpus below the base vocabulary will consist of {"b", "g", "h", "n", "p", "s", "u"}. 
+
+```python
+"hug", "pug", "pun", "bun", "hugs"
+```
+
+For real-world cases, the base vocabulary will include all Unicode characters at the beginning. In that case, if the tokenizer encounters a character that was not a member of training corpus, it will be mapped to unknown token. This is the reason behind why most NLP models struggle with anlyzing sequences with emojis present.
+
+
+
+<blockquote class="blockstyle">
+ <span class="triangle">💡</span> The GPT-2 and Roberta tokenizers directly use byte-level representations of all characters as the base vocbulary with size 256. Thereby, this initial trick encompasses all possible character and allows to avoid out-of-vocabulary situation. This trick is called byte-level BPE.
+</blockquote>
+
+<table>
+        <tr>
+            <th>Word</th>
+            <th>Frequency</th>
+        </tr>
+        <tr>
+            <td>hug</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>pug</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>pun</td>
+            <td>12</td>
+        </tr>
+        <tr>
+            <td>bun</td>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>hugs</td>
+            <td>5</td>
+        </tr>
+    </table>
+
 ### WordPiece Toekenization
 ### Unigram Tokenization
 ### SentencePiece Tokenization
