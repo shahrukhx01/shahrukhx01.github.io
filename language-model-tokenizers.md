@@ -523,11 +523,12 @@ The rule of thumb here is that tokenization with least number of tokens will res
 For a large corpus it'd be computationally expensive to determine all possible tokenization when computing the loss for the Unigram algorithm. Here, we can leverage <strong>Viterbi algorithm (a nice [youtube tutorial](https://www.youtube.com/watch?v=6JVqutwtzmo&ab_channel=KeithChugg) explaining the concept)</strong> which builds a graph to detect the most feasible tokenization at position and discard all other tokenization reaching until the given position.
 
 Let’s take a look at an example using our vocabulary and the word "unhug". For each position, the subwords with the best scores ending there are the following:<br/>
-Character 0 (u): "u" (score 0.171429)<br/>
-Character 1 (n): "un" (score 0.076191)<br/>
-Character 2 (h): "un" "h" (score 0.005442)<br/>
-Character 3 (u): "un" "hu" (score 0.005442)<br/>
-Character 4 (g): "un" "hug" (score 0.005442)<br/>
+
+- Character 0 (u): "u" (score 0.171429)
+- Character 1 (n): "un" (score 0.076191)
+- Character 2 (h): "un" "h" (score 0.005442)
+- Character 3 (u): "un" "hu" (score 0.005442)
+- Character 4 (g): "un" "hug" (score 0.005442)
 
 ### Back to training Unigram Tokenizer
 
