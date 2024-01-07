@@ -107,7 +107,7 @@ tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str("Hello, how are  you?
   <tr>
     <td>T5</td>
     <td>Whitespace only</td>
-    <td>Replaces with _ and also appends _ at the beginning</td>
+    <td>Replaces with _ and also prepends _ at the beginning of the sequence</td>
   </tr>
 </table>
 
@@ -333,9 +333,148 @@ The above process is repeated again until a certain criteria (desired vocabulary
 
 WordPiece has also been reused in quite a few Transformer models based on BERT, such as DistilBERT, MobileBERT, Funnel Transformers, and MPNET. WordPiece tokenizer is quite similar to the BPE tokenizer while having two distinctive differences: 
 - Intermediate characters in have the prepended prefix `##`. 
-- Merge of each token-pair is based on greater likelihood a given token-pair is likely to appear in a sequence in the corpus. In other words the algorithm prioritizes the merging of a token-pair where the individual parts are less frequent in the vocabulary. More formally given by for `i` token-pair with individual `j` and `k` as tokens:
-$$P_i = \frac{Count(i)}{Count(j)*Count(k)}$$<
+- Merge of each token-pair is based on greater likelihood a given token-pair is likely to appear in a sequence in the corpus. In other words the algorithm prioritizes the merging of a token-pair where the individual parts are less frequent in the vocabulary. More formally given by for `i` token-pair with individual `j` and `k` as tokens: <br/>
 
+$$score_i = \frac{count(j,k)}{count(j)*count(k)}$$
+
+<strong>Step 0:</strong> <br/>
+Hence, as per the above distictions the previously mentioned corpus and the base vocubalary will look as follows at the beginning of the tokenizer training process.
+
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>h+##u+##g</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+##u+##g</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+##u+##n</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+##u+##n</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>h+##u+##g+##s</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "h", "p", "##g", "##n", "##s", "##u"}</h4>
+
+<strong>Step 1:</strong> <br/>
+The highest score after the first iteration will go to the token-pair `##g+##s` with the highest score being `1/20`. Whereby, all other token-pairs have `##u` in them which deflates the scores of all other token-pairs by the factor `1/36`.
+
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>h+##u+##g</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+##u+##g</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+##u+##n</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+##u+##n</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>h+##u+##gs</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "h", "p", "##g", "##n", "##s", "##u", "##gs"}</h4>
+
+<strong>Step 2:</strong> <br/>
+At this point all the token-pairs have the identical scores because all of them include `##u` as one part of the pair. Let's say we merge `h+##u` first.
+
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>hu+##g</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+##u+##g</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+##u+##n</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+##u+##n</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>hu+##gs</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "h", "p", "##g", "##n", "##s", "##u", "##gs", "hu"}</h4>
+
+<strong>Step 3:</strong> <br/>
+After this iteration we observe the maximum score for the token pair `hu+##gs` with score being `1/15`.
+
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>hu+##g</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+##u+##g</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+##u+##n</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+##u+##n</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>hugs</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "h", "p", "##g", "##n", "##s", "##u", "##gs", "hu", "hugs"}</h4>
+
+Similarly to the BPE tokenization, above process is repeated again until a certain criteria (desired vocabulary size is reached) is met or till fixed number of steps.
 
 ### Unigram Tokenization
+<blockquote class="blockstyle" style="color:#00CC8F;">
+ <span class="triangle">💡</span> Unigram is not used directly for any of the models in the transformers, but it’s used in conjunction with SentencePiece.
+</blockquote>
+
+$$L = -\sum_{i=1}^{N} \log \left(\sum_{x \in S(x_i)} p(x)\right)
+$$
+
+
 ### SentencePiece Tokenization
+Langauge models using SentencePiece are ALBERT, XLNet, Marian, and T5. The issue with above described tokenization algorithms lies in the assumption that input text is delimited by spaces, which doesn't hold true for all languages. A potential remedy involves employing language-specific pre-tokenizers, such as XLM's pre-tokenizer for Chinese, Japanese, and Thai. For a more comprehensive solution, [SentencePiece](https://arxiv.org/pdf/1808.06226.pdf) (Kudo et al., 2018) offers a language-independent approach. It treats input as a raw stream, encompassing spaces within the vocbulary set, and utilizes the BPE or unigram algorithm to construct an appropriate vocabulary.
+
+<blockquote class="blockstyle" style="color:#00CC8F;">
+ <span class="triangle">💡</span> All transformers models in the library that use SentencePiece use it in combination with unigram.
+</blockquote>
