@@ -464,13 +464,133 @@ After this iteration we observe the maximum score for the token pair `hu+##gs` w
 Similarly to the BPE tokenization, above process is repeated again until a certain criteria (desired vocabulary size is reached) is met or till fixed number of steps.
 
 ### Unigram Tokenization
+
+The Unigram algorithm is often used in SentencePiece, which is the tokenization algorithm used by models like AlBERT, T5, mBART, Big Bird, and XLNet. However, unlike BPE and WordPiece tokenizers which build the vocabulary from bottom-up the Unigram tokenization algorithm starts with large base vocabulary and prunes it until the point where desired vocabulary size is reached. 
+
 <blockquote class="blockstyle" style="color:#00CC8F;">
  <span class="triangle">💡</span> Unigram is not used directly for any of the models in the transformers, but it’s used in conjunction with SentencePiece.
 </blockquote>
 
+To determine word types which are eligible to be removed from the vocabulary the Unigram algorithm computes a loss over the entire corpus given the vocabulary at current step. Then for each word type in the vocabulary it determines the word types which increase the loss the least if they are removed from the vocabulary. Since, they have less influence on the overall loss over the corpus hence they are deemed to be less important. Then at the end of each step Unigram removes p (with p usually being 10% or 20%) percent of the word types which had the lowest influence on the loss. Additionally, the base vocabulary can be built using either with all possible substring combinations for each word in the corpus or using another tokenization algorithm like BPE.
+
+
+The loss for Unigram tokenizer is defined as follows, here `N` corresponds to the number of unique words in the corpus, $$S(x_i)$$ refers to all possible tokenizations of word $$x_i$$
+
 $$L = -\sum_{i=1}^{N} \log \left(\sum_{x \in S(x_i)} p(x)\right)
 $$
 
+Training the Unigram entails training a Unigram language model which is a probablistic language model which always generates the most frequent token over and over again if used for text generation with greedy decoding. Also, the probability of a word at a given position is independent of the previous context and is just the probability of that word. That probability can simply be computed by the following position for a token at ith position, where V is the size of the vocabulary:
+
+$$p_i = \frac{count(token_i)}{\sum_{j=1}^{V} count(token_j)}$$
+
+Now for instance in the case of our infamous toy corpus which used in other tokenization algorithms the denominotor of the above formula will always be 210 as that is the sum of all word frequencies. Whereby, frequencies for each word type in the vocabulary which is strictly composed of all substrings are given below:
+<table class=“tg”> 
+<thead> <tr> <th >Token</th> <th >Frequency</th> </tr> </thead>
+<tbody> 
+<tr> <td >h</td> <td >15</td> </tr> 
+<tr> <td >u</td> <td >36</td> </tr> 
+<tr> <td >g</td> <td >20</td> </tr> 
+<tr> <td >hu</td> <td >15</td> </tr> 
+<tr> <td >ug</td> <td >20</td> </tr> 
+<tr> <td >p</td> <td >17</td> </tr> 
+<tr> <td >pu</td> <td >17</td> </tr> 
+<tr> <td >n</td> <td >16</td> </tr> 
+<tr> <td >un</td> <td >16</td> 
+</tr> <tr> <td >b</td> <td >4</td> 
+</tr> <tr> <td >bu</td> <td >4</td> </tr> 
+<tr> <td >s</td> <td >5</td> </tr> 
+<tr> <td >hug</td> <td >15</td> </tr> 
+<tr> <td >gs</td> <td >5</td> </tr> 
+<tr> <td >ugs</td> <td >5</td> </tr> 
+</tbody> 
+</table>
+
+
+As an example let's take a look at how we would compute the probability scores for the word "pug".
+
+
+$$P(["p", "u", "g"]) = \frac{17}{210} \times \frac{36}{210} \times \frac{20}{210} = 0.000389 $$
+<br/>
+
+$$P(["pu", "g"]) =  \frac{17}{210} \times \frac{20}{210} = 0.0022676 $$
+<br/>
+
+$$P(["p", "ug"]) =  \frac{17}{210} \times \frac{20}{210} = 0.0022676 $$
+<br/>
+
+The rule of thumb here is that tokenization with least number of tokens will result in higher probability score than the one with more tokens. In case of a tie we keep the tokenization which we encounter first (note that in a larger corpus, equality cases like this will be rare).
+### Excursion: Optimal Implementation for Unigram Loss
+For a large corpus it'd be computationally expensive to determine all possible tokenization when computing the loss for the Unigram algorithm. Here, we can leverage <strong>Viterbi algorithm (a nice [youtube tutorial](https://www.youtube.com/watch?v=6JVqutwtzmo&ab_channel=KeithChugg) explaining the concept)</strong> which builds a graph to detect the most feasible tokenization at position and discard all other tokenization reaching until the given position.
+
+Let’s take a look at an example using our vocabulary and the word "unhug". For each position, the subwords with the best scores ending there are the following:<br/>
+Character 0 (u): "u" (score 0.171429)<br/>
+Character 1 (n): "un" (score 0.076191)<br/>
+Character 2 (h): "un" "h" (score 0.005442)<br/>
+Character 3 (u): "un" "hu" (score 0.005442)<br/>
+Character 4 (g): "un" "hug" (score 0.005442)<br/>
+
+### Back to training Unigram Tokenizer
+
+Once the tokenization is finished for our original corpus we will get a score for each word which can be plugged into the loss function, as a reminder below is our corpus:
+
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>hug</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>pug</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>pun</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>bun</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>hugs</td>
+      <td>5</td>
+  </tr>
+</table>
+
+The tokenization of each word with their respective scores is:
+
+```python
+"hug": ["hug"] (score 0.071428)
+"pug": ["pu", "g"] (score 0.007710)
+"pun": ["pu", "n"] (score 0.006168)
+"bun": ["bu", "n"] (score 0.001451)
+"hugs": ["hug", "s"] (score 0.001701)
+```
+
+So the loss is:
+
+```python
+10 * (-log(0.071428)) + 5 * (-log(0.007710)) + 12 * (-log(0.006168)) + 4 * (-log(0.001451)) + 5 * (-log(0.001701)) = 169.8
+```
+
+Now which tokens shall we remove without increasing the loss. We saw above that for word "pug" both segmentations `pu+g` and `p+ug` yielded equivalent scores. Hence, we can safely remove from the above segmentations the term `pu` since for `pun` we also do have the token `un` hence, the overall loss won't affected over the given corpus. Whereby, if we drop the token `hug`, then this would tokenize the word "hug" and "hugs" as follows: 
+
+```python
+"hug": ["hu", "g"] (score 0.006802)
+"hugs": ["hu", "gs"] (score 0.001701)
+```
+
+Whereby the overall loss over the corpus would increase by:
+
+
+```python
+- 10 * (-log(0.071428)) + 10 * (-log(0.006802)) = 23.5
+```
+
+Hence, removing `hug` word type from the vocabulary is won't be a great choice wrt the Unigram loss.
 
 ### SentencePiece Tokenization
 Langauge models using SentencePiece are ALBERT, XLNet, Marian, and T5. The issue with above described tokenization algorithms lies in the assumption that input text is delimited by spaces, which doesn't hold true for all languages. A potential remedy involves employing language-specific pre-tokenizers, such as XLM's pre-tokenizer for Chinese, Japanese, and Thai. For a more comprehensive solution, [SentencePiece](https://arxiv.org/pdf/1808.06226.pdf) (Kudo et al., 2018) offers a language-independent approach. It treats input as a raw stream, encompassing spaces within the vocbulary set, and utilizes the BPE or unigram algorithm to construct an appropriate vocabulary.
