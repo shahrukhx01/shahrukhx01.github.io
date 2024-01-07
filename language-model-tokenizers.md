@@ -193,7 +193,7 @@ The key principle of subword tokenization entails applying word-level tokenizati
 Concretely, the subword toeknization has multiple implementation flavors. Below we will go over the most commonplace flavors used by some of the mainstream language models.
 
 ### Byte-Pair (BPE) Tokenization
-BPE tokenization involves a training step at the beginning. Unlike the machine learning model the training process entails computing statistical measures to construct a meaningful and robust vocabulary whilst also applying pre-processing (normalization and pre-tokenization) and post-processing steps. For instance, for the toy corpus below the base vocabulary will consist of {"b", "g", "h", "n", "p", "s", "u"}. 
+BPE is used by a lot of Transformer models, including GPT, GPT-2, RoBERTa, BART, and DeBERTa. BPE tokenization involves a training step at the beginning. Unlike the machine learning model the training process entails computing statistical measures to construct a meaningful and robust vocabulary whilst also applying pre-processing (normalization and pre-tokenization) and post-processing steps. For instance, for the toy corpus below the base vocabulary will consist of {"b", "g", "h", "n", "p", "s", "u"}. 
 
 ```python
 "hug", "pug", "pun", "bun", "hugs"
@@ -207,33 +207,135 @@ For real-world cases, the base vocabulary will include all Unicode characters at
  <span class="triangle">💡</span> The GPT-2 and Roberta tokenizers directly use byte-level representations of all characters as the base vocbulary with size 256. Thereby, this initial trick encompasses all possible character and allows to avoid out-of-vocabulary situation. This trick is called byte-level BPE.
 </blockquote>
 
+<strong>Step 0:</strong> <br/>
+After forming the base vocabulary, BPE tokenizer looks at each pair of consecutive tokens and concatenates the most frequent token-pair token and adds the concatenated token-pair to base vocabulary and replaces all the consecutive occurences of both tokens with their concatenated version. Here, `+` indicates the token-boundary based on the current state of vocabulary. Since, at the beginning we only have characters in the base vocabulary thus, here's how things would look like at the beginning.
 <table>
-        <tr>
-            <th>Word</th>
-            <th>Frequency</th>
-        </tr>
-        <tr>
-            <td>hug</td>
-            <td>10</td>
-        </tr>
-        <tr>
-            <td>pug</td>
-            <td>5</td>
-        </tr>
-        <tr>
-            <td>pun</td>
-            <td>12</td>
-        </tr>
-        <tr>
-            <td>bun</td>
-            <td>4</td>
-        </tr>
-        <tr>
-            <td>hugs</td>
-            <td>5</td>
-        </tr>
-    </table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>h+u+g</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+u+g</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+u+n</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+u+n</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>h+u+g+s</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "g", "h", "n", "p", "s", "u"}</h4>
+
+<strong>Step 1:</strong>
+After the first pass we can observe the token-pair `u+g` occurs 20 times in the entire corpus, hence, we concatenate and replace in corpus, add to the vocabulary.
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>h+ug</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+ug</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+u+n</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+u+n</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>h+ug+s</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "g", "h", "n", "p", "s", "u", "ug"}</h4>
+
+<strong>Step 2:</strong> <br/>
+In this iteration we find that `u+n` has the highest frequecy of 16.
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>h+ug</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+ug</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+un</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+un</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>h+ug+s</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "g", "h", "n", "p", "s", "u", "ug", "un"}</h4>
+
+<strong>Step 3:</strong> <br/>
+In this iteration we find that `h+ug` has the highest frequecy of 15.
+<table>
+  <tr>
+      <th>Word</th>
+      <th>Frequency</th>
+  </tr>
+  <tr>
+      <td>hug</td>
+      <td>10</td>
+  </tr>
+  <tr>
+      <td>p+ug</td>
+      <td>5</td>
+  </tr>
+  <tr>
+      <td>p+un</td>
+      <td>12</td>
+  </tr>
+  <tr>
+      <td>b+un</td>
+      <td>4</td>
+  </tr>
+  <tr>
+      <td>hug+s</td>
+      <td>5</td>
+  </tr>
+</table>
+<h4>Vocbulary: {"b", "g", "h", "n", "p", "s", "u", "ug", "un", "hug"}</h4>
+
+The above process is repeated again until a certain criteria (desired vocabulary size is reached) is met or till fixed number of steps.
 
 ### WordPiece Toekenization
+
+WordPiece has also been reused in quite a few Transformer models based on BERT, such as DistilBERT, MobileBERT, Funnel Transformers, and MPNET. WordPiece tokenizer is quite similar to the BPE tokenizer while having two distinctive differences: 
+- Intermediate characters in have the prepended prefix `##`. 
+- Merge of each token-pair is based on greater likelihood a given token-pair is likely to appear in a sequence in the corpus. In other words the algorithm prioritizes the merging of a token-pair where the individual parts are less frequent in the vocabulary. More formally given by for `i` token-pair with individual `j` and `k` as tokens:
+$$P_i = \frac{Count(i)}{Count(j)*Count(k)}$$<
+
+
 ### Unigram Tokenization
 ### SentencePiece Tokenization
