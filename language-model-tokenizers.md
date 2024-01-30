@@ -36,7 +36,7 @@ In this post, we will expolore various tokenization mechanisms. Including the on
 Before we delve into aforementioned tokenization mechanism. It is important to highlight that tokenizers in practice are not used stand-alone on raw input. Rather specialized pre-processing and post-processing steps are performed to standardize tokenization results. This becomes even more critical when processing multi-lingual corpora.
 
 ![alt text](/media/language-model-tokenizers/tokenization_pipeline.svg "Tokenization Pipeline")
-<em>source: <a href="https://huggingface.co/learn/nlp-course/chapter6/4">https://huggingface.co/learn/nlp-course/chapter6/4</a></em>
+<em>source: <a href="https://huggingface.co/learn/nlp-course/chapter6/4" target="_blank">https://huggingface.co/learn/nlp-course/chapter6/4</a></em>
 
 ## Normalization
 
